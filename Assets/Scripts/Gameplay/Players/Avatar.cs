@@ -38,11 +38,13 @@ public class Avatar : PunBehaviour
             }
             healthBar.value = (float)HealthAmount / START_HEALTH;
             if (PhotonNetwork.isMasterClient)
+            {
                 if (_healthAmount <= 0)
                 {
                     if (OutOfHealth != null)
                         OutOfHealth.Invoke();
                 }
+            }
         }
     }
 
@@ -68,7 +70,7 @@ public class Avatar : PunBehaviour
             GetComponent<Rigidbody>().isKinematic = true;
     }
 
-    public void Spawn(AvatarType avatarType, Vector3 spawnPosition)
+    public void CreateAvatar(AvatarType avatarType, Vector3 spawnPosition)
     {
         int idModel = PhotonNetwork.AllocateViewID();
         int idWeapon = PhotonNetwork.AllocateViewID();
@@ -103,14 +105,15 @@ public class Avatar : PunBehaviour
         avatarModel.transform.SetParent(transform, false);
 
         AvatarTypeSettings = avatarType.Settings();
+        title.text = AvatarTypeSettings.Name;
 
         weapon.Init(this);
-
         if (photonView.isMine)
         {
             AvatarControl avatarControl = gameObject.AddComponent<AvatarControl>();
             avatarControl.Init(this, avatarModel, weapon);
         }
+
         transform.position = spawnPosition;
         gameObject.SetActive(true);
     }
@@ -136,16 +139,16 @@ public class Avatar : PunBehaviour
             case AvatarType.SHOOTER:
                 avatarModel = Instantiate(Resources.Load<GameObject>(ResourcePaths.ShooterAvatar));
                 GameObject weaponGO = Instantiate(Resources.Load<GameObject>(ResourcePaths.Weapon));
-                SetUpSharedGameObject(idWeapon, weaponGO);
+                SetupSharedGameObject(idWeapon, weaponGO);
                 weapon = weaponGO.GetComponent<Weapon>();
                 break;
             default:
                 throw new UnhandledEnumCase(avatarType);
         }
-        SetUpSharedGameObject(idModel, avatarModel);
+        SetupSharedGameObject(idModel, avatarModel);
     }
 
-    private void SetUpSharedGameObject(int viewID, GameObject instantiatedObject)
+    private void SetupSharedGameObject(int viewID, GameObject instantiatedObject)
     {
         PhotonView objectPhotonView = instantiatedObject.GetComponent<PhotonView>();
         objectPhotonView.viewID = viewID;
