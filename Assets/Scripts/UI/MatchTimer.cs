@@ -4,9 +4,10 @@ using UnityEngine.UI;
 
 public class MatchTimer : MonoBehaviour
 {
-
-    public Text description;
-    public Text time;
+    [SerializeField]
+    private Text description;
+    [SerializeField]
+    private Text time;
 
     public event EmptyDelegate OutOfTime;
 

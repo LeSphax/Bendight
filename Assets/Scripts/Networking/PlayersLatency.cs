@@ -7,6 +7,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+//Store the ping of our player in the properties of the room, making it accessible to other players.
 class PlayersLatency : PunBehaviour
 {
     void Start()

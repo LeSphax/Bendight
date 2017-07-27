@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 /// <summary>
 /// This script automatically connects to Photon (using the settings file).
-/// Then it joins or create the Bendight room
+/// Then it joins or create the Bendight room.
+/// I created it from a template provided by Photon
 /// </summary>
 public class AutoConnectToRoom : Photon.MonoBehaviour
 {

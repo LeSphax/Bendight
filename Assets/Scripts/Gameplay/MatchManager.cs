@@ -33,12 +33,18 @@ public class MatchManager : PunBehaviour
 
     private const int MATCH_LENGTH_IN_SECONDS = 60;
 
-    public Transform spawns;
-    public List<GameObject> panels;
-    public Text centerText;
-    public GameObject playAgainButton;
-    public List<GameObject> choosingRolesUI;
-    public MatchTimer timer;    
+    [SerializeField]
+    private Transform spawns;
+    [SerializeField]
+    private List<GameObject> panels;
+    [SerializeField]
+    private Text centerText;
+    [SerializeField]
+    private GameObject playAgainButton;
+    [SerializeField]
+    private List<GameObject> choosingRolesUI;
+    [SerializeField]
+    private MatchTimer timer;    
 
     private string winner;
 
@@ -132,7 +138,6 @@ public class MatchManager : PunBehaviour
     [PunRPC]
     public void StartMatch(int type)
     {
-        Debug.Log("StartMatch " + type + "     " + state);
         if (!PhotonNetwork.isMasterClient)
         {
             photonView.RPC("StartMatch", PhotonTargets.MasterClient, (int)((AvatarType)type).OtherType());
@@ -148,15 +153,10 @@ public class MatchManager : PunBehaviour
                 Avatar avatar = avatarList[playerID];
 
                 avatar.OutOfHealth += OutOfHealth;
-                avatar.Spawn(avatarType, spawns.GetChild(spawnNumber).position);
+                avatar.CreateAvatar(avatarType, spawns.GetChild(spawnNumber).position);
             }
             State = MatchState.PLAYING;
         }
-    }
-
-    private void OutOfHealth()
-    {
-        EndMatch("Shooter");
     }
 
     private void EndMatch(string winnerName)
@@ -172,6 +172,11 @@ public class MatchManager : PunBehaviour
         }
     }
 
+    private void OutOfHealth()
+    {
+        EndMatch("Shooter");
+    }
+
     private void OutOfTime()
     {
         EndMatch("Dodger");
@@ -183,7 +188,7 @@ public class MatchManager : PunBehaviour
         winner = winnerName;
     }
 
-    public void PlayAgain()
+    public void PlayAgainPressed()
     {
         State = MatchState.CHOOSING_ROLES;
     }

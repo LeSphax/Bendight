@@ -55,4 +55,5 @@ MonoBehaviour:
   - RemoveAvatar
   - SetHealth
   - SetWinnerName
+  - SetState
   DisableAutoOpenWizard: 1
