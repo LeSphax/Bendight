@@ -14,10 +14,10 @@ public class StraightTrajectoryStrategy : ATrajectoryState
         rotation = Quaternion.Euler(90, 0, 90 + Mathf.Rad2Deg * Mathf.Atan2(direction.z, direction.x));
     }
 
-    public override ATrajectoryState NextPosition(Vector3 currentPosition, out Vector3? newPosition, out Quaternion? newRotation)
+    public override ATrajectoryState NextPosition(float deltaTime, Vector3 currentPosition, out Vector3? newPosition, out Quaternion? newRotation)
     {
         newRotation = rotation;
-        newPosition = currentPosition + direction * speed;
+        newPosition = currentPosition + direction * speed * deltaTime;
         return this;
     }
 }

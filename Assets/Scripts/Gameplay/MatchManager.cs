@@ -1,5 +1,6 @@
 ﻿using Photon;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
@@ -7,6 +8,18 @@ using UnityEngine.UI;
 public class MatchManager : PunBehaviour
 {
     private static Dictionary<int, Avatar> avatarList = new Dictionary<int, Avatar>();
+
+    public static int OtherPlayerID
+    {
+        get
+        {
+            List<int> otherPlayersIds = avatarList.Keys.Where(playerID => playerID != PhotonNetwork.player.ID).ToList();
+            if (otherPlayersIds.Count == 1)
+                return otherPlayersIds[0];
+            else
+                return -1;
+        }
+    }
 
     public static void RegisterAvatar(int playerID, Avatar avatar)
     {

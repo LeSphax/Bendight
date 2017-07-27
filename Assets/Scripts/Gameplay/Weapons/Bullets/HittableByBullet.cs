@@ -18,35 +18,33 @@ public class HittableByBullet : MonoBehaviour
 
     public void ApplyHitEffect(Bullet bullet, Vector3 contactPoint)
     {
-        if (PhotonNetwork.isMasterClient)
-            switch (type)
-            {
-                case Type.WALL:
-                    //Nothing happening to the wall
+        switch (type)
+        {
+            case Type.WALL:
+                //Nothing happening to the wall
+                DestroyBullet(bullet, contactPoint);
+                break;
+            case Type.PLAYER:
+                Avatar player = GetComponent<Avatar>();
+                if (player.Team != bullet.team)
+                {
+                    GetComponent<Avatar>().LoseHealth(1);
                     DestroyBullet(bullet, contactPoint);
-                    break;
-                case Type.PLAYER:
-                    Avatar player = GetComponent<Avatar>();
-                    if (player.Team != bullet.team)
-                    {
-                        GetComponent<Avatar>().LoseHealth(1);
-                        DestroyBullet(bullet, contactPoint);
-                    }
-                    break;
-                case Type.BULLET:
-                    if (bullet.team != GetComponent<Bullet>().team)
-                        //Both bullets will destroy the other one
-                        DestroyBullet(bullet, contactPoint);
-                    break;
-                default:
-                    throw new UnhandledEnumCase(type);
-            }
+                }
+                break;
+            case Type.BULLET:
+                if (bullet.team != GetComponent<Bullet>().team)
+                    //Both bullets will destroy the other one
+                    DestroyBullet(bullet, contactPoint);
+                break;
+            default:
+                throw new UnhandledEnumCase(type);
+        }
     }
 
     private void DestroyBullet(Bullet bullet, Vector3 contactPoint)
     {
         PhotonNetwork.Destroy(bullet.photonView);
-        //bullet.photonView.synchronization = ViewSynchronization.Off;
         PhotonNetwork.Instantiate(ResourcePaths.Impact, contactPoint, Quaternion.identity, 0);
     }
 }

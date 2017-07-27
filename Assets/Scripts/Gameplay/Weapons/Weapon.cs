@@ -1,5 +1,6 @@
 ﻿using Photon;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class Weapon : PunBehaviour, IWeapon
 {
@@ -55,21 +56,47 @@ public class Weapon : PunBehaviour, IWeapon
         }
         set
         {
-            switch (value)
+            if (photonView.isMine)
             {
-                case WeaponState.IDLE:
-                    break;
-                case WeaponState.AIMING:
-                    castTimer = 0;
-                    break;
-                case WeaponState.RELOADING:
-                    reloadTimer = 0;
-                    break;
-                default:
-                    throw new UnhandledEnumCase(value);
+                photonView.RPC("SetState", PhotonTargets.Others, value);
+                switch (value)
+                {
+                    case WeaponState.IDLE:
+                        break;
+                    case WeaponState.AIMING:
+                        castTimer = 0;
+                        break;
+                    case WeaponState.RELOADING:
+                        reloadTimer = 0;
+                        break;
+                    default:
+                        throw new UnhandledEnumCase(value);
+                }
+            }
+            else
+            {
+                switch (value)
+                {
+                    case WeaponState.IDLE:
+                        break;
+                    case WeaponState.AIMING:
+                        castTimer = PlayersLatency.OneWayTripOtherPlayer();
+                        break;
+                    case WeaponState.RELOADING:
+                        reloadTimer = PlayersLatency.OneWayTripOtherPlayer();
+                        break;
+                    default:
+                        throw new UnhandledEnumCase(value);
+                }
             }
             currentState = value;
         }
+    }
+
+    [PunRPC]
+    private void SetState(WeaponState state)
+    {
+        CurrentState = state;
     }
 
     public void Init(Avatar owner)
@@ -94,13 +121,13 @@ public class Weapon : PunBehaviour, IWeapon
         UpdateAppearance();
     }
 
-    [PunRPC]
     private void Shoot(Vector3[] controlPoints)
     {
-        if (PhotonNetwork.isMasterClient)
-        {
-            PhotonNetwork.Instantiate(ResourcePaths.Bullet, TipPosition, Quaternion.identity, 0, new object[] { controlPoints, owner.Team });
-        }
+        Assert.IsTrue(photonView.isMine);
+        GameObject bullet = PhotonNetwork.Instantiate(ResourcePaths.Bullet, TipPosition, Quaternion.identity, 0, new object[] { controlPoints, owner.Team, PhotonNetwork.player.ID });
+        if (MatchManager.OtherPlayerID != -1)
+            //The shooter instantiates the bullet but the dodger manage the collisions and destroy the bullets
+            bullet.GetComponent<PhotonView>().TransferOwnership(MatchManager.OtherPlayerID);
     }
 
     private void UpdateAppearance()
@@ -137,7 +164,7 @@ public class Weapon : PunBehaviour, IWeapon
                     if (photonView.isMine)
                     {
                         Vector3[] controlPoints = ((CurvedTargeting)targeting).ControlPoints();
-                        photonView.RPC("Shoot", PhotonTargets.MasterClient, controlPoints);
+                        Shoot(controlPoints);
                     }
                     CurrentState = WeaponState.RELOADING;
                 }
@@ -156,12 +183,6 @@ public class Weapon : PunBehaviour, IWeapon
 
     public void ShootPressed()
     {
-        photonView.RPC("ShootPressedRPC", PhotonTargets.All);
-    }
-
-    [PunRPC]
-    public void ShootPressedRPC()
-    {
         switch (currentState)
         {
             case WeaponState.IDLE:
@@ -177,12 +198,6 @@ public class Weapon : PunBehaviour, IWeapon
     }
 
     public void CancelShootPressed()
-    {
-        photonView.RPC("CancelShootPressedRPC", PhotonTargets.All);
-    }
-
-    [PunRPC]
-    public void CancelShootPressedRPC()
     {
         switch (currentState)
         {

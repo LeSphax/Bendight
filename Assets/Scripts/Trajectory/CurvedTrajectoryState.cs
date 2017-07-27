@@ -23,9 +23,9 @@ public class CurvedTrajectoryState : ATrajectoryState
         this.controlPoints = controlPoints;
         previousCompletion = 0;
     }
-    public override ATrajectoryState NextPosition(Vector3 currentPosition, out Vector3? newPosition, out Quaternion? newRotation)
+    public override ATrajectoryState NextPosition(float deltaTime, Vector3 currentPosition, out Vector3? newPosition, out Quaternion? newRotation)
     {
-        float increment = speed / curveLength;
+        float increment = (speed * deltaTime) / curveLength;
         float newCompletion = previousCompletion + increment;
 
         if (newCompletion <= 1)
@@ -44,7 +44,7 @@ public class CurvedTrajectoryState : ATrajectoryState
         }
         else
         {
-            return new StraightTrajectoryStrategy(CurrentDirection, speed).NextPosition(currentPosition, out newPosition, out newRotation);
+            return new StraightTrajectoryStrategy(CurrentDirection, speed).NextPosition(deltaTime,currentPosition, out newPosition, out newRotation);
         }
 
     }

@@ -11,10 +11,10 @@ public class Bullet : PunBehaviour
 
     private void Awake()
     {
-        Init((Vector3[])photonView.instantiationData[0], (Team)photonView.instantiationData[1]);
+        Init((Vector3[])photonView.instantiationData[0], (Team)photonView.instantiationData[1], (int)photonView.instantiationData[2]);
     }
 
-    public void Init(Vector3[] controlPoints, Team team)
+    public void Init(Vector3[] controlPoints, Team team, int instantiatorID)
     {
         this.team = team;
         GetComponent<Renderer>().material.color = team.Color();
@@ -23,20 +23,21 @@ public class Bullet : PunBehaviour
         else
             trajectory = new CurvedTrajectoryState(controlPoints, speed);
 
-        UpdatePositionAndRotation();
+        if (PhotonNetwork.player.ID != instantiatorID)
+            UpdatePositionAndRotation(PlayersLatency.OneWayTripOtherPlayer());
     }
 
     private void FixedUpdate()
     {
-        UpdatePositionAndRotation();
+        UpdatePositionAndRotation(Time.fixedDeltaTime);
     }
 
-    private void UpdatePositionAndRotation()
+    private void UpdatePositionAndRotation(float deltaTime)
     {
         Vector3? nextPosition;
         Quaternion? nextRotation;
 
-        trajectory = trajectory.NextPosition(transform.position, out nextPosition, out nextRotation);
+        trajectory = trajectory.NextPosition(deltaTime, transform.position, out nextPosition, out nextRotation);
 
         if (nextPosition != null)
             transform.position = nextPosition.Value;
@@ -53,7 +54,7 @@ public class Bullet : PunBehaviour
     {
         HittableByBullet effect = otherCollider.GetComponent<HittableByBullet>();
 
-        if (effect != null)
+        if (effect != null && photonView.isMine)
         {
             effect.ApplyHitEffect(this, contactPoint);
         }

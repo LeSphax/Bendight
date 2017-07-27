@@ -32,16 +32,17 @@ public class Avatar : PunBehaviour
         private set
         {
             _healthAmount = value;
-            if (PhotonNetwork.isMasterClient)
+            if (photonView.isMine)
             {
                 photonView.RPC("SetHealth", PhotonTargets.Others, value);
+            }
+            healthBar.value = (float)HealthAmount / START_HEALTH;
+            if (PhotonNetwork.isMasterClient)
                 if (_healthAmount <= 0)
                 {
                     if (OutOfHealth != null)
                         OutOfHealth.Invoke();
                 }
-            }
-            healthBar.value = (float)HealthAmount / START_HEALTH;
         }
     }
 
@@ -150,7 +151,6 @@ public class Avatar : PunBehaviour
         objectPhotonView.viewID = viewID;
         if (photonView.isMine)
         {
-            objectPhotonView.ownershipTransfer = OwnershipOption.Takeover;
             objectPhotonView.TransferOwnership(PhotonNetwork.player.ID);
         }
         instantiatedObject.transform.SetParent(avatarModel.transform, false);
