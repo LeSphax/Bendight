@@ -124,9 +124,10 @@ public class Weapon : PunBehaviour, IWeapon
     private void Shoot(Vector3[] controlPoints)
     {
         Assert.IsTrue(photonView.isMine);
+
+        //The shooter instantiates the bullet but the dodger manage the collisions and destroy the bullets
         GameObject bullet = PhotonNetwork.Instantiate(ResourcePaths.Bullet, TipPosition, Quaternion.identity, 0, new object[] { controlPoints, owner.Team, PhotonNetwork.player.ID });
         if (MatchManager.OtherPlayerID != -1)
-            //The shooter instantiates the bullet but the dodger manage the collisions and destroy the bullets
             bullet.GetComponent<PhotonView>().TransferOwnership(MatchManager.OtherPlayerID);
     }
 

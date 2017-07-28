@@ -18,6 +18,7 @@ public class Bullet : PunBehaviour
     {
         this.team = team;
         GetComponent<Renderer>().material.color = team.Color();
+
         if (controlPoints.Length == 1)
             trajectory = new StraightTrajectoryStrategy(controlPoints[0], speed);
         else

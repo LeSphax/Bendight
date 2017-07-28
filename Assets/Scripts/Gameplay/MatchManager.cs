@@ -132,6 +132,7 @@ public class MatchManager : PunBehaviour
     {
         base.OnPhotonPlayerConnected(newPlayer);
         Assert.IsTrue(PhotonNetwork.isMasterClient);
+        Assert.IsTrue(State == MatchState.WAITING_PLAYER);
         State = MatchState.CHOOSING_ROLES;
     }
 
@@ -174,11 +175,13 @@ public class MatchManager : PunBehaviour
 
     private void OutOfHealth()
     {
+        Assert.IsTrue(State == MatchState.PLAYING);
         EndMatch("Shooter");
     }
 
     private void OutOfTime()
     {
+        Assert.IsTrue(State == MatchState.PLAYING);
         EndMatch("Dodger");
     }
 
@@ -190,6 +193,7 @@ public class MatchManager : PunBehaviour
 
     public void PlayAgainPressed()
     {
+        Assert.IsTrue(State == MatchState.END);
         State = MatchState.CHOOSING_ROLES;
     }
 
