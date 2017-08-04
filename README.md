@@ -1,7 +1,7 @@
 # Bendight
 
-This is a two player game with two different roles :
-  - The dodger is moves faster and tries to survive for 1 minute
+This is a two players game based on curving bullet trajectories. Each player can take one of the following roles:
+  - The dodger tries to survive for 1 minute, he moves faster than the shooter.
   - The shooter tries to hit the dodger 5 times in less than 1 minute. He has a weapon than can shoot bullets and curve their trajectories
 
 If you just want to test the game, you can download the Bendight.zip file at the root of the project and get started. 
